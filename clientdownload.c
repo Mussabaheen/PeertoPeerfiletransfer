@@ -12,19 +12,35 @@
 
 int main(int argc, char *argv[])
 {
+	
 	int status;
 	int sockfd, numbytes;
-	char buf[MAXDATASIZE];
+	char *buf=(char*)malloc(1000000);
+	char *data_file=(char*)malloc(100);
+	strcpy(data_file,"Mussabaheen");
 	struct hostent *he;
 	struct sockaddr_in their_addr; // connector’s address information
-	int port[argc-2];
-	for(int a=0;a<argc-2;a++)
+	int ports_number=argc-3;
+	float file_size=atoi(argv[2]);
+
+	float file_div=file_size/ports_number;
+	printf("VALUE : %f \n",file_div);
+	float size_port=file_size - ((ports_number-1)*(int)file_div);
+	printf("FILE SIZES LAST : %f %d \n",size_port,(int)file_div);
+	int port[argc-3];
+	for(int a=0;a<argc-3;a++)
 	{
-		port[a]=atoi(argv[a+2]);
+		port[a]=atoi(argv[a+3]);
 		int pid=fork();
 		if(pid>0)
 		{
-			wait(&status);		
+			wait(&status);
+			printf("DONE! %d \n",a);
+			if(a==3)
+			{
+				printf("DATA FILE: %s \n",data_file);	
+			}
+		
 		}
 	else
 	{
@@ -50,7 +66,8 @@ int main(int argc, char *argv[])
 		perror("connect");
 		exit(1);
 	}
-	if ((numbytes=recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+	char *buf=(char*)malloc((int)size_port);
+	if ((numbytes=recv(sockfd, buf, (int)size_port, 0)) == -1) {
 		perror("recv");
 		exit(1);
 	}

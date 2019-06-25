@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include<fcntl.h>
+
 #define MYPORT 3490 // the port users will be connecting to
 #define BACKLOG 10 // how many pending connections queue will hold
 
@@ -55,8 +56,7 @@ int main(void)
 	my_addr.sin_family = AF_INET;  // host byte order
 	my_addr.sin_port = htons(MYPORT); // short, network byte order
 	my_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
-	bzero(&(my_addr.sin_zero), 8);
-	// zero the rest of the struct
+	bzero(&(my_addr.sin_zero), 8);// zero the rest of the struct
 	if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
 		perror("bind");
 		exit(1);
@@ -109,9 +109,11 @@ int main(void)
 			recv(new_fd,buf_fname,100000,0);
 			printf("Recived Data : %s Length: %d  \n",buf_fname,strlen(buf_fname));
 			int index_filefound=strlen(buf_fname);
+			printf("bit : %c \n",buf_fname[index_filefound-1]);
 			if(buf_fname[index_filefound-1]=='0')
 			{
-				int torrent_bool[100];
+			printf("GOT HERE! \n");	
+			int torrent_bool[100];
 			buf_fname[strlen(buf_fname)-1]='\0';
 				int fd_file=open(buf_fname,O_RDONLY);
                 //      if(fd_file==-1)
@@ -132,9 +134,12 @@ int main(void)
 				char *buf_rev=(char*)malloc(10000);
 				char *buf_files=(char*)malloc(1000);
 				sprintf(buf_files,"%d",file_size);
-				strcpy(buf_rev,"./cd1 127.0.0.1 ");
+				strcpy(buf_rev,"127.0.0.1 ");
 				strcat(buf_rev,buf_files);
 				strcat(buf_rev," ");
+				 char *argv2[100];
+				argv2[0] = "cd";
+                                        argv2[1] = "127.0.0.1";
 				for(int a=0;a<port_index;a++)
 				{
 					if(torrent_bool[a]==0)
@@ -142,11 +147,21 @@ int main(void)
 						strcat(buf_rev,port_server[a]);
 						strcat(buf_rev," ");
 					//	printf("client download: %s \n",buf_rev);
+					
+
+                                        argv2[a+2] = file_server[port_index-1];
+                                         argv2[a+3]=NULL;
 					}
 				}
 				//system(buf_rev);
 				printf("COMMAND : %s \n",buf_rev);
-				
+				int pid=fork();
+			
+				if(pid==0)
+				{
+					execvp("./cd1",argv2);
+				return 0;
+				}
 				strcpy(buf_rev,"");
 			}
 			else
@@ -164,14 +179,32 @@ int main(void)
 				buf_fname[a]=' ';
 			}
 			strcpy(new_server,"");
-			strcpy(new_server,"./c2s ");
 			close(new_fd); // parent doesn’t need this
-			for(int a=0;a<port_index;a++)
+			//for(int a=0;a<port_index;a++)
+		//	{
+		//		printf("PORT FILE : %s %s \n",file_server[a],port_server[a]);
+		//	
+		//	}
+			strcat(new_server,port_server[port_index-1]);
+			strcat(new_server," ");
+
+			strcat(new_server,file_server[port_index-1]);
+			printf("COMMAND_EXECUTED %s \n",new_server);
+			char *argv1[4];
+			argv1[0] = "c2s";
+			argv1[1] = port_server[port_index-1];
+			argv1[2] = file_server[port_index-1];
+			argv1[3]=NULL;
+			 int pid_1=fork();
+			if(pid_1==0)
 			{
-				printf("PORT FILE : %s %s \n",file_server[a],port_server[a]);
+			//	system(new_server);
+				execvp("./c2s",argv1);
+				return 0;
 			}
+			
+			strcpy(new_server,"");
 			}
-			wait(&status);
 		}
 	return 0;
 }

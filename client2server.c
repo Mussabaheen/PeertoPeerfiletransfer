@@ -25,6 +25,8 @@ int main(int argc,char *argv[])
 	int MYPORT=atoi(argv[1]);
 	int fd=open(argv[2],O_RDONLY);
 	
+	printf("hello hello hello");
+	printf("hello hello hello");
 	int buffer=read(fd,file_read,10000000);
 	printf("FILE SIZE : %d \n",buffer);
 	printf("PORT : %d\n",MYPORT);
@@ -56,6 +58,7 @@ int main(int argc,char *argv[])
 		perror("listen");
 		exit(1);
 	}
+
 	sa.sa_handler = sigchld_handler; // reap all dead processes
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
@@ -63,13 +66,13 @@ int main(int argc,char *argv[])
 		perror("sigaction");
 		exit(1);
 	}
-	while(1) { // main accept() loop
+		printf("server2client waitng here......\n");
 		sin_size = sizeof(struct sockaddr_in);
 		if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr,&sin_size)) == -1) {
 			perror("accept");
-			continue;
+			//continue;
 		}
-		printf("server: got connection from %s\n",
+		printf("client2server: got connection from %s\n",
 				inet_ntoa(their_addr.sin_addr));
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn’t need the listener
@@ -92,9 +95,8 @@ int main(int argc,char *argv[])
 		
 			recv(new_fd,buf_fname,10000,0);
 			
-			printf("Recived Data : %s \n",buf_fname);
+			printf("RECIVED DATA INDEXES : %s \n",buf_fname);
 			close(new_fd); // parent doesn’t need this
-	}
 	return 0;
 }
 
