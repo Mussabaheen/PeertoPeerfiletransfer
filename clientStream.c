@@ -32,6 +32,16 @@ int main(int argc, char *argv[])
 		perror("socket");
 		exit(1);
 	}
+	int choice;
+
+	while(1)
+	{
+		
+	printf("Do you want to (Recieve:0)/(send:1) file? ");
+		scanf("%d",&choice);
+		if(choice==0 || choice==1)
+			break;
+	}
 	their_addr.sin_family = AF_INET;     // host byte order
 	their_addr.sin_port = htons(PORT); // short, network byte order
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
@@ -45,9 +55,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	printf("SIZE : %d \n",strlen(argv[2]));
+	choice?strcat(argv[2],"1"):strcat(argv[2],"0");
+	printf("%s",argv[2]);
 	send(sockfd,argv[2],strlen(argv[2]),0);
 	buf[numbytes] = '\0';
-	printf("Received: %s",buf);
+	printf("Received: %s",buf);	
 	close(sockfd);
 	return 0;
 }
