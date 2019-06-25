@@ -107,12 +107,20 @@ int main(void)
 			strcpy(buf_fname,"");	
 
 			recv(new_fd,buf_fname,100000,0);
-			printf("Recived Data : %c Length: %d  \n",buf_fname[15],strlen(buf_fname));
+			printf("Recived Data : %s Length: %d  \n",buf_fname,strlen(buf_fname));
 			int index_filefound=strlen(buf_fname);
 			if(buf_fname[index_filefound-1]=='0')
 			{
 				int torrent_bool[100];
 			buf_fname[strlen(buf_fname)-1]='\0';
+				int fd_file=open(buf_fname,O_RDONLY);
+                //      if(fd_file==-1)
+                //      {
+                //              continue;
+                //      }
+                        char *buf_read=(char*)malloc(10000000);
+                        int file_size=read(fd_file,buf_read,10000000);
+				printf("FILE SIZE : %d \n",file_size);
 				for(int a=0;a<100;a++)
 				{
 					torrent_bool[a]=1;
@@ -121,17 +129,25 @@ int main(void)
 				{
 					torrent_bool[a]=strcmp(buf_fname,file_server[a]);
 				}
+				char *buf_rev=(char*)malloc(10000);
+				char *buf_files=(char*)malloc(1000);
+				sprintf(buf_files,"%d",file_size);
+				strcpy(buf_rev,"./cd1 127.0.0.1 ");
+				strcat(buf_rev,buf_files);
+				strcat(buf_rev," ");
 				for(int a=0;a<port_index;a++)
 				{
 					if(torrent_bool[a]==0)
 					{
-						char *buf_rev=(char *)malloc(100000);
-						strcpy(buf_rev,"");
-						strcpy(buf_rev,"./cd1 127.0.0.1 ");
 						strcat(buf_rev,port_server[a]);
-						printf("client download: %s \n",buf_rev);
+						strcat(buf_rev," ");
+					//	printf("client download: %s \n",buf_rev);
 					}
 				}
+				//system(buf_rev);
+				printf("COMMAND : %s \n",buf_rev);
+				
+				strcpy(buf_rev,"");
 			}
 			else
 			{
@@ -140,8 +156,8 @@ int main(void)
 				strcpy(file_server[file_index],buf_fname);			
 				port_index++;
 				file_index++;
-			}
-			int fd=open(buf_fname,O_RDONLY);
+			
+
 			perror("OPEN : ");
 			for(int a=0;a<100000;a++)
 			{
@@ -153,6 +169,7 @@ int main(void)
 			for(int a=0;a<port_index;a++)
 			{
 				printf("PORT FILE : %s %s \n",file_server[a],port_server[a]);
+			}
 			}
 			wait(&status);
 		}
