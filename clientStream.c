@@ -1,6 +1,3 @@
-/*
-** clientStream.c - a stream socket client demo
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,32 +17,35 @@ int main(int argc, char *argv[])
 	char buf[MAXDATASIZE];
 	struct hostent *he;
 	struct sockaddr_in their_addr; // connector’s address information
-	if (argc != 2) {
-	fprintf(stderr,"usage: client hostname\n");
-	exit(1);
+
+	if (argc != 3) {
+		fprintf(stderr,"usage: client hostname\nOR\nProvide File Path which you want to Recieve/send?\n");
+		exit(1);
 	}
+
 	if ((he=gethostbyname(argv[1])) == NULL) {
-	perror("gethostbyname");
-	exit(1);
+		perror("gethostbyname");
+		exit(1);
 	}
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-	perror("socket");
-	exit(1);
+		perror("socket");
+		exit(1);
 	}
 	their_addr.sin_family = AF_INET;     // host byte order
 	their_addr.sin_port = htons(PORT); // short, network byte order
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 	bzero(&(their_addr.sin_zero), 8); // zero the rest of the struct
 	if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
-	perror("connect");
-	exit(1);
+		perror("connect");
+		exit(1);
 	}
 	if ((numbytes=recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	perror("recv");
-	exit(1);
+		perror("recv");
+		exit(1);
 	}
-	send(sockfd,"Hey From Mussabaheen Malik",50,0);
+	printf("SIZE : %d \n",strlen(argv[2]));
+	send(sockfd,argv[2],strlen(argv[2]),0);
 	buf[numbytes] = '\0';
 	printf("Received: %s",buf);
 	close(sockfd);

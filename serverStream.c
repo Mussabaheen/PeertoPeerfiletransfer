@@ -27,6 +27,8 @@ int main(void)
 	struct sockaddr_in my_addr;     // my address information
 	struct sockaddr_in their_addr; // connector’s address information
 	int sin_size;
+	char *buf=(char *)malloc(10000);
+	strcpy(buf,"");
 	struct sigaction sa;
 	int yes=1;
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -68,14 +70,15 @@ int main(void)
 	if (!fork()) { // this is the child process
 	close(sockfd); // child doesn’t need the listener
 	if (send(new_fd, "Hello, world!\n", 14, 0) == -1)
-	perror("send");
+	perror("send");	
+	recv(new_fd,buf,10000,0);
+	printf("Recived Data : %s \n",buf);
 	close(new_fd);
 	exit(0);
 	}
-	char buf[100];
-	recv(new_fd,buf,50,0);
-	buf[51]='\0';
-	printf("Recived Data : %s \n",buf);
+//	char buf[100];
+
+
 	close(new_fd); // parent doesn’t need this
 	}
 	return 0;
