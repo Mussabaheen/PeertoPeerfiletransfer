@@ -30,7 +30,18 @@ int main(void)
 	int yes=1;
 	char *new_port=(char*)malloc(100);
 	char *new_server=(char *)malloc(10000);
-
+	char **port_server=(char **)malloc(1000);
+	int port_index=0;
+	int file_index=0;
+	for(int a=0;a<1000;a++)
+	{
+		port_server[a]=(char*)malloc(10000);
+	}
+	char **file_server=(char **)malloc(1000);
+        for(int a=0;a<1000;a++)
+        {
+                file_server[a]=(char*)malloc(10000);
+        }
 	strcpy(new_server,"./c2s ");
 	printf("NEW STRING : %s \n",new_server);
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -96,15 +107,40 @@ int main(void)
 			strcpy(buf_fname,"");	
 
 			recv(new_fd,buf_fname,100000,0);
-			printf("Recived Data : %s Length: %d  \n",buf_fname,strlen(buf_fname));
-			if(buf_fname[strlen(buf_fname-1)]=='0')
+			printf("Recived Data : %c Length: %d  \n",buf_fname[15],strlen(buf_fname));
+			int index_filefound=strlen(buf_fname);
+			if(buf_fname[index_filefound-1]=='0')
 			{
+				int torrent_bool[100];
+			buf_fname[strlen(buf_fname)-1]='\0';
+				for(int a=0;a<100;a++)
+				{
+					torrent_bool[a]=1;
+				}
+				for(int a=0;a<port_index;a++)
+				{
+					torrent_bool[a]=strcmp(buf_fname,file_server[a]);
+				}
+				for(int a=0;a<port_index;a++)
+				{
+					if(torrent_bool[a]==0)
+					{
+						char *buf_rev=(char *)malloc(100000);
+						strcpy(buf_rev,"");
+						strcpy(buf_rev,"./cd1 127.0.0.1 ");
+						strcat(buf_rev,port_server[a]);
+						printf("client download: %s \n",buf_rev);
+					}
+				}
 			}
 			else
 			{
-				
+				buf_fname[strlen(buf_fname)-1]='\0';
+				sprintf(port_server[port_index],"%d",their_addr.sin_port);
+				strcpy(file_server[file_index],buf_fname);			
+				port_index++;
+				file_index++;
 			}
-			buf_fname[strlen(buf_fname)-1]='\0';
 			int fd=open(buf_fname,O_RDONLY);
 			perror("OPEN : ");
 			for(int a=0;a<100000;a++)
@@ -114,7 +150,12 @@ int main(void)
 			strcpy(new_server,"");
 			strcpy(new_server,"./c2s ");
 			close(new_fd); // parent doesn’t need this
-	}
+			for(int a=0;a<port_index;a++)
+			{
+				printf("PORT FILE : %s %s \n",file_server[a],port_server[a]);
+			}
+			wait(&status);
+		}
 	return 0;
 }
 

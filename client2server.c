@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
-
+#include <fcntl.h>
 #define BACKLOG 10 // how many pending connections queue will hold
 
 void sigchld_handler(int s)
@@ -20,8 +20,13 @@ void sigchld_handler(int s)
 int main(int argc,char *argv[])
 {
 	int sockfd, new_fd; // listen on sock_fd, new connection on new_fd
+	char *file_read=(char*)malloc(10000000);
 	int status;
 	int MYPORT=atoi(argv[1]);
+	int fd=open(argv[2],O_RDONLY);
+	
+	int buffer=read(fd,file_read,10000000);
+	printf("FILE SIZE : %d \n",buffer);
 	printf("PORT : %d\n",MYPORT);
 	struct sockaddr_in my_addr;     // my address information
 	struct sockaddr_in their_addr; // connector’s address information
@@ -86,8 +91,9 @@ int main(int argc,char *argv[])
 		//	char buf[100];
 		
 			recv(new_fd,buf_fname,10000,0);
+			
 			printf("Recived Data : %s \n",buf_fname);
-		close(new_fd); // parent doesn’t need this
+			close(new_fd); // parent doesn’t need this
 	}
 	return 0;
 }
